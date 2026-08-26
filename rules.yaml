@@ -411,7 +411,7 @@ groups:
                     type: last
 
       - uid: llm-test-ec2-service-down
-        title: "[llm]-[test]-[ec2]-[service]-[service_name]"
+        title: "[llm]-[test]-[ec2]-[service]-[ollama.service]"
         condition: B
         for: 1m
         labels:
@@ -430,7 +430,7 @@ groups:
             datasourceUid: prometheus-ds
             model:
               editorMode: code
-              expr: node_systemd_unit_state{state="active", name=~".*service"} == 0
+              expr: node_systemd_unit_state{state="active", name=~"ollama.service"} == 0
               instant: true
               range: false
           - refId: B

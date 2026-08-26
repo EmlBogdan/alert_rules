@@ -1,0 +1,472 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: db-alerts
+    folder: LLM-Test-Alerts
+    interval: 1m
+    rules:
+      - uid: llm-test-db-high-storage
+        title: "[llm]-[test]-[db]-[high]-[storage]"
+        condition: B
+        for: 5m
+        labels:
+          severity: high
+          environment: test
+          component: database
+        annotations:
+          summary: "RDS Free Storage Space is low"
+          description: "Free storage space is below 10GB for database instance."
+        data:
+          - refId: A
+            datasourceUid: CloudWatch
+            queryType: ""
+            model:
+              namespace: AWS/RDS
+              metricName: FreeStorageSpace
+              statistic: Minimum
+              dimensions:
+                DBInstanceIdentifier: "*"
+              period: 300
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [10737418240]
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+
+      - uid: llm-test-db-high-cpu
+        title: "[llm]-[test]-[db]-[high]-[cpu]"
+        condition: B
+        for: 5m
+        labels:
+          severity: high
+          environment: test
+          component: database
+        annotations:
+          summary: "RDS CPU Utilization is high"
+          description: "Database CPU utilization is above 85% for 5 minutes."
+        data:
+          - refId: A
+            datasourceUid: CloudWatch
+            model:
+              namespace: AWS/RDS
+              metricName: CPUUtilization
+              statistic: Average
+              dimensions:
+                DBInstanceIdentifier: "*"
+              period: 300
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [85]
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+
+      - uid: llm-test-db-high-memory
+        title: "[llm]-[test]-[db]-[high]-[memory]"
+        condition: B
+        for: 5m
+        labels:
+          severity: high
+          environment: test
+          component: database
+        annotations:
+          summary: "RDS Freeable Memory is critically low"
+          description: "Freeable memory is less than 512MB."
+        data:
+          - refId: A
+            datasourceUid: CloudWatch
+            model:
+              namespace: AWS/RDS
+              metricName: FreeableMemory
+              statistic: Average
+              dimensions:
+                DBInstanceIdentifier: "*"
+              period: 300
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [536870912]
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+
+  - orgId: 1
+    name: ec2-alerts
+    folder: LLM-Test-Alerts
+    interval: 1m
+    rules:
+      - uid: llm-test-ec2-low-cpu
+        title: "[llm]-[test]-[ec2]-[low]-[cpu]"
+        condition: B
+        for: 15m
+        labels:
+          severity: low
+          environment: test
+          component: ec2
+        annotations:
+          summary: "EC2 CPU usage is very low"
+          description: "Instance {{ $labels.instance }} CPU is below 5% for 15m."
+        data:
+          - refId: A
+            datasourceUid: Prometheus
+            model:
+              expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+              instant: true
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [5]
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+
+      - uid: llm-test-ec2-high-cpu
+        title: "[llm]-[test]-[ec2]-[high]-[cpu]"
+        condition: B
+        for: 5m
+        labels:
+          severity: high
+          environment: test
+          component: ec2
+        annotations:
+          summary: "EC2 High CPU Load"
+          description: "Instance {{ $labels.instance }} CPU usage is above 85%."
+        data:
+          - refId: A
+            datasourceUid: Prometheus
+            model:
+              expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+              instant: true
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [85]
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+
+      - uid: llm-test-ec2-low-memory
+        title: "[llm]-[test]-[ec2]-[low]-[memory]"
+        condition: B
+        for: 15m
+        labels:
+          severity: low
+          environment: test
+          component: ec2
+        annotations:
+          summary: "EC2 Memory usage is low"
+          description: "Instance {{ $labels.instance }} RAM usage is below 15%."
+        data:
+          - refId: A
+            datasourceUid: Prometheus
+            model:
+              expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100
+              instant: true
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [15]
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+
+      - uid: llm-test-ec2-high-memory
+        title: "[llm]-[test]-[ec2]-[high]-[memory]"
+        condition: B
+        for: 5m
+        labels:
+          severity: high
+          environment: test
+          component: ec2
+        annotations:
+          summary: "EC2 High Memory Usage"
+          description: "Instance {{ $labels.instance }} RAM usage is above 90%."
+        data:
+          - refId: A
+            datasourceUid: Prometheus
+            model:
+              expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100
+              instant: true
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [90]
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+
+      - uid: llm-test-ec2-low-disk-space
+        title: "[llm]-[test]-[ec2]-[low]-[disk-space]"
+        condition: B
+        for: 10m
+        labels:
+          severity: low
+          environment: test
+          component: ec2
+        annotations:
+          summary: "EC2 Disk Space Warning"
+          description: "Instance {{ $labels.instance }} disk usage on {{ $labels.mountpoint }} is above 75%."
+        data:
+          - refId: A
+            datasourceUid: Prometheus
+            model:
+              expr: 100 - ((node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} * 100) / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"})
+              instant: true
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [75]
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+
+      - uid: llm-test-ec2-high-disk-space
+        title: "[llm]-[test]-[ec2]-[high]-[disk-space]"
+        condition: B
+        for: 5m
+        labels:
+          severity: high
+          environment: test
+          component: ec2
+        annotations:
+          summary: "EC2 Disk Space Critical"
+          description: "Instance {{ $labels.instance }} disk usage on {{ $labels.mountpoint }} exceeds 90%."
+        data:
+          - refId: A
+            datasourceUid: Prometheus
+            model:
+              expr: 100 - ((node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} * 100) / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"})
+              instant: true
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [90]
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+
+      - uid: llm-test-ec2-service-status
+        title: "[llm]-[test]-[ec2]-[service]-[service_name]"
+        condition: B
+        for: 1m
+        labels:
+          severity: critical
+          environment: test
+          component: systemd
+        annotations:
+          summary: "Systemd service down"
+          description: "Service {{ $labels.name }} on {{ $labels.instance }} is not active."
+        data:
+          - refId: A
+            datasourceUid: Prometheus
+            model:
+              expr: node_systemd_unit_state{state="active", name=~".*service"} == 0
+              instant: true
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+
+  - orgId: 1
+    name: elb-alerts
+    folder: LLM-Test-Alerts
+    interval: 1m
+    rules:
+      - uid: llm-test-elb-high-host-count
+        title: "[llm]-[test]-[elb]-[high]-[host-count]"
+        condition: B
+        for: 5m
+        labels:
+          severity: high
+          environment: test
+          component: elb
+        annotations:
+          summary: "Unhealthy Host Count is High"
+          description: "Target Group has unhealthy hosts."
+        data:
+          - refId: A
+            datasourceUid: CloudWatch
+            model:
+              namespace: AWS/ApplicationELB
+              metricName: UnHealthyHostCount
+              statistic: Maximum
+              dimensions:
+                LoadBalancer: "*"
+                TargetGroup: "*"
+              period: 60
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+
+      - uid: llm-test-elb-medium-4xx
+        title: "[llm]-[test]-[elb]-[medium]-[4XX-errors]"
+        condition: B
+        for: 5m
+        labels:
+          severity: medium
+          environment: test
+          component: elb
+        annotations:
+          summary: "High rate of 4XX errors on ELB"
+          description: "HTTP 4XX error count exceeded 20 in 5 minutes."
+        data:
+          - refId: A
+            datasourceUid: CloudWatch
+            model:
+              namespace: AWS/ApplicationELB
+              metricName: HTTPCode_Target_4XX_Count
+              statistic: Sum
+              dimensions:
+                LoadBalancer: "*"
+              period: 300
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [20]
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+
+      - uid: llm-test-elb-medium-5xx
+        title: "[llm]-[test]-[elb]-[medium]-[5XX-errors]"
+        condition: B
+        for: 5m
+        labels:
+          severity: medium
+          environment: test
+          component: elb
+        annotations:
+          summary: "5XX Server errors on ELB"
+          description: "HTTP 5XX error count exceeded 5 in 5 minutes."
+        data:
+          - refId: A
+            datasourceUid: CloudWatch
+            model:
+              namespace: AWS/ApplicationELB
+              metricName: HTTPCode_Target_5XX_Count
+              statistic: Sum
+              dimensions:
+                LoadBalancer: "*"
+              period: 300
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [5]
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last

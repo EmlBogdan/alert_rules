@@ -8,7 +8,7 @@ groups:
     rules:
       - uid: llm-test-db-high-storage
         title: "[llm]-[test]-[db]-[high]-[storage]"
-        condition: B
+        condition: C
         for: 5m
         labels:
           severity: high
@@ -35,8 +35,15 @@ groups:
             queryType: ""
             datasourceUid: __expr__
             model:
-              type: threshold
+              type: reduce
               expression: A
+              reducer: last
+          - refId: C
+            queryType: ""
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
               conditions:
                 - evaluator:
                     type: lt
@@ -46,13 +53,11 @@ groups:
                     type: and
                   query:
                     params:
-                      - A
-                  reducer:
-                    type: last
+                      - B
 
       - uid: llm-test-db-high-cpu
         title: "[llm]-[test]-[db]-[high]-[cpu]"
-        condition: B
+        condition: C
         for: 5m
         labels:
           severity: high
@@ -79,8 +84,15 @@ groups:
             queryType: ""
             datasourceUid: __expr__
             model:
-              type: threshold
+              type: reduce
               expression: A
+              reducer: mean
+          - refId: C
+            queryType: ""
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
               conditions:
                 - evaluator:
                     type: gt
@@ -90,13 +102,11 @@ groups:
                     type: and
                   query:
                     params:
-                      - A
-                  reducer:
-                    type: last
+                      - B
 
       - uid: llm-test-db-high-memory
         title: "[llm]-[test]-[db]-[high]-[memory]"
-        condition: B
+        condition: C
         for: 5m
         labels:
           severity: high
@@ -123,8 +133,15 @@ groups:
             queryType: ""
             datasourceUid: __expr__
             model:
-              type: threshold
+              type: reduce
               expression: A
+              reducer: mean
+          - refId: C
+            queryType: ""
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
               conditions:
                 - evaluator:
                     type: lt
@@ -134,9 +151,7 @@ groups:
                     type: and
                   query:
                     params:
-                      - A
-                  reducer:
-                    type: last
+                      - B
 
   - orgId: 1
     name: ec2-alerts
@@ -444,7 +459,7 @@ groups:
     rules:
       - uid: llm-test-elb-high-host-count
         title: "[llm]-[test]-[elb]-[high]-[host-count]"
-        condition: B
+        condition: C
         for: 5m
         labels:
           severity: high
@@ -464,16 +479,20 @@ groups:
               namespace: AWS/ApplicationELB
               metricName: UnHealthyHostCount
               statistic: Maximum
-              dimensions:
-                LoadBalancer: "*"
-                TargetGroup: "*"
               period: "60"
           - refId: B
             queryType: ""
             datasourceUid: __expr__
             model:
-              type: threshold
+              type: reduce
               expression: A
+              reducer: max
+          - refId: C
+            queryType: ""
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
               conditions:
                 - evaluator:
                     type: gt
@@ -483,13 +502,11 @@ groups:
                     type: and
                   query:
                     params:
-                      - A
-                  reducer:
-                    type: last
+                      - B
 
       - uid: llm-test-elb-medium-4xx
         title: "[llm]-[test]-[elb]-[medium]-[4XX-errors]"
-        condition: B
+        condition: C
         for: 5m
         labels:
           severity: medium
@@ -509,15 +526,20 @@ groups:
               namespace: AWS/ApplicationELB
               metricName: HTTPCode_Target_4XX_Count
               statistic: Sum
-              dimensions:
-                LoadBalancer: "*"
               period: "300"
           - refId: B
             queryType: ""
             datasourceUid: __expr__
             model:
-              type: threshold
+              type: reduce
               expression: A
+              reducer: sum
+          - refId: C
+            queryType: ""
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
               conditions:
                 - evaluator:
                     type: gt
@@ -527,13 +549,11 @@ groups:
                     type: and
                   query:
                     params:
-                      - A
-                  reducer:
-                    type: last
+                      - B
 
       - uid: llm-test-elb-medium-5xx
         title: "[llm]-[test]-[elb]-[medium]-[5XX-errors]"
-        condition: B
+        condition: C
         for: 5m
         labels:
           severity: medium
@@ -553,15 +573,20 @@ groups:
               namespace: AWS/ApplicationELB
               metricName: HTTPCode_Target_5XX_Count
               statistic: Sum
-              dimensions:
-                LoadBalancer: "*"
               period: "300"
           - refId: B
             queryType: ""
             datasourceUid: __expr__
             model:
-              type: threshold
+              type: reduce
               expression: A
+              reducer: sum
+          - refId: C
+            queryType: ""
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
               conditions:
                 - evaluator:
                     type: gt
@@ -571,6 +596,4 @@ groups:
                     type: and
                   query:
                     params:
-                      - A
-                  reducer:
-                    type: last
+                      - B

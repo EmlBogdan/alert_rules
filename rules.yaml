@@ -30,7 +30,7 @@ groups:
               statistic: Minimum
               dimensions:
                 DBInstanceIdentifier: "*"
-              period: 300
+              period: "300"
           - refId: B
             queryType: ""
             datasourceUid: __expr__
@@ -74,7 +74,7 @@ groups:
               statistic: Average
               dimensions:
                 DBInstanceIdentifier: "*"
-              period: 300
+              period: "300"
           - refId: B
             queryType: ""
             datasourceUid: __expr__
@@ -118,7 +118,7 @@ groups:
               statistic: Average
               dimensions:
                 DBInstanceIdentifier: "*"
-              period: 300
+              period: "300"
           - refId: B
             queryType: ""
             datasourceUid: __expr__
@@ -467,7 +467,7 @@ groups:
               dimensions:
                 LoadBalancer: "*"
                 TargetGroup: "*"
-              period: 60
+              period: "60"
           - refId: B
             queryType: ""
             datasourceUid: __expr__
@@ -511,7 +511,7 @@ groups:
               statistic: Sum
               dimensions:
                 LoadBalancer: "*"
-              period: 300
+              period: "300"
           - refId: B
             queryType: ""
             datasourceUid: __expr__
@@ -555,7 +555,7 @@ groups:
               statistic: Sum
               dimensions:
                 LoadBalancer: "*"
-              period: 300
+              period: "300"
           - refId: B
             queryType: ""
             datasourceUid: __expr__

@@ -16,11 +16,14 @@ groups:
           component: database
         annotations:
           summary: "RDS Free Storage Space is low"
-          description: "Free storage space is below 10GB for database instance."
+          description: "Free storage space is below 10GB."
         data:
           - refId: A
-            datasourceUid: CloudWatch
             queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: cloudwatch-ds
             model:
               namespace: AWS/RDS
               metricName: FreeStorageSpace
@@ -29,6 +32,7 @@ groups:
                 DBInstanceIdentifier: "*"
               period: 300
           - refId: B
+            queryType: ""
             datasourceUid: __expr__
             model:
               type: threshold
@@ -36,11 +40,13 @@ groups:
               conditions:
                 - evaluator:
                     type: lt
-                    params: [10737418240]
+                    params:
+                      - 10737418240
                   operator:
                     type: and
                   query:
-                    params: [A]
+                    params:
+                      - A
                   reducer:
                     type: last
 
@@ -54,10 +60,14 @@ groups:
           component: database
         annotations:
           summary: "RDS CPU Utilization is high"
-          description: "Database CPU utilization is above 85% for 5 minutes."
+          description: "Database CPU utilization is above 85%."
         data:
           - refId: A
-            datasourceUid: CloudWatch
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: cloudwatch-ds
             model:
               namespace: AWS/RDS
               metricName: CPUUtilization
@@ -66,6 +76,7 @@ groups:
                 DBInstanceIdentifier: "*"
               period: 300
           - refId: B
+            queryType: ""
             datasourceUid: __expr__
             model:
               type: threshold
@@ -73,11 +84,13 @@ groups:
               conditions:
                 - evaluator:
                     type: gt
-                    params: [85]
+                    params:
+                      - 85
                   operator:
                     type: and
                   query:
-                    params: [A]
+                    params:
+                      - A
                   reducer:
                     type: last
 
@@ -90,11 +103,15 @@ groups:
           environment: test
           component: database
         annotations:
-          summary: "RDS Freeable Memory is critically low"
+          summary: "RDS Freeable Memory is low"
           description: "Freeable memory is less than 512MB."
         data:
           - refId: A
-            datasourceUid: CloudWatch
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: cloudwatch-ds
             model:
               namespace: AWS/RDS
               metricName: FreeableMemory
@@ -103,6 +120,7 @@ groups:
                 DBInstanceIdentifier: "*"
               period: 300
           - refId: B
+            queryType: ""
             datasourceUid: __expr__
             model:
               type: threshold
@@ -110,11 +128,13 @@ groups:
               conditions:
                 - evaluator:
                     type: lt
-                    params: [536870912]
+                    params:
+                      - 536870912
                   operator:
                     type: and
                   query:
-                    params: [A]
+                    params:
+                      - A
                   reducer:
                     type: last
 
@@ -133,14 +153,21 @@ groups:
           component: ec2
         annotations:
           summary: "EC2 CPU usage is very low"
-          description: "Instance {{ $labels.instance }} CPU is below 5% for 15m."
+          description: "Instance {{ $labels.instance }} CPU is below 5%."
         data:
           - refId: A
-            datasourceUid: Prometheus
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus-ds
             model:
+              editorMode: code
               expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
               instant: true
+              range: false
           - refId: B
+            queryType: ""
             datasourceUid: __expr__
             model:
               type: threshold
@@ -148,11 +175,13 @@ groups:
               conditions:
                 - evaluator:
                     type: lt
-                    params: [5]
+                    params:
+                      - 5
                   operator:
                     type: and
                   query:
-                    params: [A]
+                    params:
+                      - A
                   reducer:
                     type: last
 
@@ -166,14 +195,21 @@ groups:
           component: ec2
         annotations:
           summary: "EC2 High CPU Load"
-          description: "Instance {{ $labels.instance }} CPU usage is above 85%."
+          description: "Instance {{ $labels.instance }} CPU is above 85%."
         data:
           - refId: A
-            datasourceUid: Prometheus
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus-ds
             model:
+              editorMode: code
               expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
               instant: true
+              range: false
           - refId: B
+            queryType: ""
             datasourceUid: __expr__
             model:
               type: threshold
@@ -181,11 +217,13 @@ groups:
               conditions:
                 - evaluator:
                     type: gt
-                    params: [85]
+                    params:
+                      - 85
                   operator:
                     type: and
                   query:
-                    params: [A]
+                    params:
+                      - A
                   reducer:
                     type: last
 
@@ -202,11 +240,18 @@ groups:
           description: "Instance {{ $labels.instance }} RAM usage is below 15%."
         data:
           - refId: A
-            datasourceUid: Prometheus
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus-ds
             model:
+              editorMode: code
               expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100
               instant: true
+              range: false
           - refId: B
+            queryType: ""
             datasourceUid: __expr__
             model:
               type: threshold
@@ -214,11 +259,13 @@ groups:
               conditions:
                 - evaluator:
                     type: lt
-                    params: [15]
+                    params:
+                      - 15
                   operator:
                     type: and
                   query:
-                    params: [A]
+                    params:
+                      - A
                   reducer:
                     type: last
 
@@ -235,11 +282,18 @@ groups:
           description: "Instance {{ $labels.instance }} RAM usage is above 90%."
         data:
           - refId: A
-            datasourceUid: Prometheus
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus-ds
             model:
+              editorMode: code
               expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100
               instant: true
+              range: false
           - refId: B
+            queryType: ""
             datasourceUid: __expr__
             model:
               type: threshold
@@ -247,11 +301,13 @@ groups:
               conditions:
                 - evaluator:
                     type: gt
-                    params: [90]
+                    params:
+                      - 90
                   operator:
                     type: and
                   query:
-                    params: [A]
+                    params:
+                      - A
                   reducer:
                     type: last
 
@@ -268,11 +324,18 @@ groups:
           description: "Instance {{ $labels.instance }} disk usage on {{ $labels.mountpoint }} is above 75%."
         data:
           - refId: A
-            datasourceUid: Prometheus
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus-ds
             model:
+              editorMode: code
               expr: 100 - ((node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} * 100) / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"})
               instant: true
+              range: false
           - refId: B
+            queryType: ""
             datasourceUid: __expr__
             model:
               type: threshold
@@ -280,11 +343,13 @@ groups:
               conditions:
                 - evaluator:
                     type: gt
-                    params: [75]
+                    params:
+                      - 75
                   operator:
                     type: and
                   query:
-                    params: [A]
+                    params:
+                      - A
                   reducer:
                     type: last
 
@@ -301,11 +366,18 @@ groups:
           description: "Instance {{ $labels.instance }} disk usage on {{ $labels.mountpoint }} exceeds 90%."
         data:
           - refId: A
-            datasourceUid: Prometheus
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus-ds
             model:
+              editorMode: code
               expr: 100 - ((node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} * 100) / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"})
               instant: true
+              range: false
           - refId: B
+            queryType: ""
             datasourceUid: __expr__
             model:
               type: threshold
@@ -313,15 +385,17 @@ groups:
               conditions:
                 - evaluator:
                     type: gt
-                    params: [90]
+                    params:
+                      - 90
                   operator:
                     type: and
                   query:
-                    params: [A]
+                    params:
+                      - A
                   reducer:
                     type: last
 
-      - uid: llm-test-ec2-service-status
+      - uid: llm-test-ec2-service-down
         title: "[llm]-[test]-[ec2]-[service]-[service_name]"
         condition: B
         for: 1m
@@ -331,14 +405,21 @@ groups:
           component: systemd
         annotations:
           summary: "Systemd service down"
-          description: "Service {{ $labels.name }} on {{ $labels.instance }} is not active."
+          description: "Service {{ $labels.name }} on {{ $labels.instance }} is down."
         data:
           - refId: A
-            datasourceUid: Prometheus
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus-ds
             model:
+              editorMode: code
               expr: node_systemd_unit_state{state="active", name=~".*service"} == 0
               instant: true
+              range: false
           - refId: B
+            queryType: ""
             datasourceUid: __expr__
             model:
               type: threshold
@@ -346,11 +427,13 @@ groups:
               conditions:
                 - evaluator:
                     type: gt
-                    params: [0]
+                    params:
+                      - 0
                   operator:
                     type: and
                   query:
-                    params: [A]
+                    params:
+                      - A
                   reducer:
                     type: last
 
@@ -372,7 +455,11 @@ groups:
           description: "Target Group has unhealthy hosts."
         data:
           - refId: A
-            datasourceUid: CloudWatch
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: cloudwatch-ds
             model:
               namespace: AWS/ApplicationELB
               metricName: UnHealthyHostCount
@@ -382,6 +469,7 @@ groups:
                 TargetGroup: "*"
               period: 60
           - refId: B
+            queryType: ""
             datasourceUid: __expr__
             model:
               type: threshold
@@ -389,11 +477,13 @@ groups:
               conditions:
                 - evaluator:
                     type: gt
-                    params: [0]
+                    params:
+                      - 0
                   operator:
                     type: and
                   query:
-                    params: [A]
+                    params:
+                      - A
                   reducer:
                     type: last
 
@@ -407,10 +497,14 @@ groups:
           component: elb
         annotations:
           summary: "High rate of 4XX errors on ELB"
-          description: "HTTP 4XX error count exceeded 20 in 5 minutes."
+          description: "HTTP 4XX error count exceeded 20."
         data:
           - refId: A
-            datasourceUid: CloudWatch
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: cloudwatch-ds
             model:
               namespace: AWS/ApplicationELB
               metricName: HTTPCode_Target_4XX_Count
@@ -419,6 +513,7 @@ groups:
                 LoadBalancer: "*"
               period: 300
           - refId: B
+            queryType: ""
             datasourceUid: __expr__
             model:
               type: threshold
@@ -426,11 +521,13 @@ groups:
               conditions:
                 - evaluator:
                     type: gt
-                    params: [20]
+                    params:
+                      - 20
                   operator:
                     type: and
                   query:
-                    params: [A]
+                    params:
+                      - A
                   reducer:
                     type: last
 
@@ -444,10 +541,14 @@ groups:
           component: elb
         annotations:
           summary: "5XX Server errors on ELB"
-          description: "HTTP 5XX error count exceeded 5 in 5 minutes."
+          description: "HTTP 5XX error count exceeded 5."
         data:
           - refId: A
-            datasourceUid: CloudWatch
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: cloudwatch-ds
             model:
               namespace: AWS/ApplicationELB
               metricName: HTTPCode_Target_5XX_Count
@@ -456,6 +557,7 @@ groups:
                 LoadBalancer: "*"
               period: 300
           - refId: B
+            queryType: ""
             datasourceUid: __expr__
             model:
               type: threshold
@@ -463,10 +565,12 @@ groups:
               conditions:
                 - evaluator:
                     type: gt
-                    params: [5]
+                    params:
+                      - 5
                   operator:
                     type: and
                   query:
-                    params: [A]
+                    params:
+                      - A
                   reducer:
                     type: last

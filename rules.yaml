@@ -317,7 +317,7 @@ groups:
                 - evaluator:
                     type: gt
                     params:
-                      - 70
+                      - 50
                   operator:
                     type: and
                   query:

@@ -359,7 +359,7 @@ groups:
                 - evaluator:
                     type: lt
                     params:
-                      - 35
+                      - 10
                   operator:
                     type: and
                   query:

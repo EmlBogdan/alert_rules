@@ -97,7 +97,7 @@ groups:
                 - evaluator:
                     type: gt
                     params:
-                      - 85
+                      - 70
                   operator:
                     type: and
                   query:
@@ -114,7 +114,7 @@ groups:
           component: database
         annotations:
           summary: "RDS Freeable Memory is low"
-          description: "Freeable memory is less than 512MB."
+          description: "Freeable memory is less than 100MB."
         data:
           - refId: A
             queryType: ""
@@ -146,7 +146,7 @@ groups:
                 - evaluator:
                     type: lt
                     params:
-                      - 536870912
+                      - 100000000
                   operator:
                     type: and
                   query:
@@ -168,7 +168,7 @@ groups:
           component: ec2
         annotations:
           summary: "EC2 CPU usage is very low"
-          description: "Instance {{ $labels.instance }} CPU is below 5%."
+          description: "Instance {{ $labels.instance }} CPU is below 0.4%."
         data:
           - refId: A
             queryType: ""
@@ -191,7 +191,7 @@ groups:
                 - evaluator:
                     type: lt
                     params:
-                      - 5
+                      - 0.4
                   operator:
                     type: and
                   query:
@@ -210,7 +210,7 @@ groups:
           component: ec2
         annotations:
           summary: "EC2 High CPU Load"
-          description: "Instance {{ $labels.instance }} CPU is above 85%."
+          description: "Instance {{ $labels.instance }} CPU is above 70%."
         data:
           - refId: A
             queryType: ""
@@ -233,7 +233,7 @@ groups:
                 - evaluator:
                     type: gt
                     params:
-                      - 85
+                      - 70
                   operator:
                     type: and
                   query:
@@ -252,7 +252,7 @@ groups:
           component: ec2
         annotations:
           summary: "EC2 Memory usage is low"
-          description: "Instance {{ $labels.instance }} RAM usage is below 15%."
+          description: "Instance {{ $labels.instance }} RAM usage is below 10%."
         data:
           - refId: A
             queryType: ""
@@ -275,7 +275,7 @@ groups:
                 - evaluator:
                     type: lt
                     params:
-                      - 15
+                      - 10
                   operator:
                     type: and
                   query:
@@ -294,7 +294,7 @@ groups:
           component: ec2
         annotations:
           summary: "EC2 High Memory Usage"
-          description: "Instance {{ $labels.instance }} RAM usage is above 90%."
+          description: "Instance {{ $labels.instance }} RAM usage is above 70%."
         data:
           - refId: A
             queryType: ""
@@ -317,7 +317,7 @@ groups:
                 - evaluator:
                     type: gt
                     params:
-                      - 90
+                      - 70
                   operator:
                     type: and
                   query:
@@ -336,7 +336,7 @@ groups:
           component: ec2
         annotations:
           summary: "EC2 Disk Space Warning"
-          description: "Instance {{ $labels.instance }} disk usage on {{ $labels.mountpoint }} is above 75%."
+          description: "Instance {{ $labels.instance }} disk usage on {{ $labels.mountpoint }} is lower than 350%."
         data:
           - refId: A
             queryType: ""
@@ -357,9 +357,9 @@ groups:
               expression: A
               conditions:
                 - evaluator:
-                    type: gt
+                    type: lt
                     params:
-                      - 75
+                      - 35
                   operator:
                     type: and
                   query:
@@ -377,8 +377,8 @@ groups:
           environment: test
           component: ec2
         annotations:
-          summary: "EC2 Disk Space Critical"
-          description: "Instance {{ $labels.instance }} disk usage on {{ $labels.mountpoint }} exceeds 90%."
+          summary: "EC2 Disk Space High"
+          description: "Instance {{ $labels.instance }} disk usage on {{ $labels.mountpoint }} greater than 80%."
         data:
           - refId: A
             queryType: ""
@@ -401,7 +401,7 @@ groups:
                 - evaluator:
                     type: gt
                     params:
-                      - 90
+                      - 80
                   operator:
                     type: and
                   query:
@@ -430,7 +430,7 @@ groups:
             datasourceUid: prometheus-ds
             model:
               editorMode: code
-              expr: node_systemd_unit_state{state="active", name=~"ollama.service"} == 0
+              expr: node_systemd_unit_state{state="active", name=~"ollama.service"}
               instant: true
               range: false
           - refId: B
@@ -441,9 +441,9 @@ groups:
               expression: A
               conditions:
                 - evaluator:
-                    type: gt
+                    type: lt
                     params:
-                      - 0
+                      - 1
                   operator:
                     type: and
                   query:
@@ -458,7 +458,7 @@ groups:
     interval: 1m
     rules:
       - uid: llm-test-elb-high-host-count
-        title: "[llm]-[test]-[elb]-[high]-[host-count]"
+        title: "[llm]-[test]-[elb]-[high]-[unhealty-host-count]"
         condition: C
         for: 5m
         labels:
@@ -544,7 +544,7 @@ groups:
                 - evaluator:
                     type: gt
                     params:
-                      - 20
+                      - 2
                   operator:
                     type: and
                   query:
@@ -591,7 +591,7 @@ groups:
                 - evaluator:
                     type: gt
                     params:
-                      - 5
+                      - 2
                   operator:
                     type: and
                   query:
